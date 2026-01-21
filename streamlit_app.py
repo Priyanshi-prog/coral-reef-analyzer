@@ -51,24 +51,26 @@ def get_prediction_image(mask):
     return Image.fromarray(colors)
 
 def generate_reef_report(mask, filename):
-    total_px = mask.size
-    healthy_px = np.isin(mask, [0,1,2,3,4,5,6,7,8,9,10,11,23,33]).sum()
-    bleached_px = (mask == 12).sum()
-    algae_px = np.isin(mask, [13,14,15,16]).sum()
-    damage_px = np.isin(mask, [17,18]).sum()
+    # Force convert numpy numbers to standard Python integers (int)
+    total_px = int(mask.size)
+    healthy_px = int(np.isin(mask, [0,1,2,3,4,5,6,7,8,9,10,11,23,33]).sum())
+    bleached_px = int((mask == 12).sum())
+    algae_px = int(np.isin(mask, [13,14,15,16]).sum())
+    damage_px = int(np.isin(mask, [17,18]).sum())
     
     total_coral = healthy_px + bleached_px
     lcc_val = (total_coral / total_px) * 100
     sev_val = (bleached_px / total_coral * 100) if total_coral > 0 else 0
     algae_cov = (algae_px / total_px) * 100
     
+    # Force convert results to standard Python floats (float)
     return {
-        "Image_ID": filename,
+        "Image_ID": str(filename),
         "Health_Status": "Bleached" if sev_val > 10 else "Healthy",
-        "Bleaching_Severity_Score": round(sev_val, 2),
+        "Bleaching_Severity_Score": round(float(sev_val), 2),
         "Severity_Label": "Severe" if sev_val > 50 else "Moderate" if sev_val > 15 else "Low",
-        "Live_Coral_Cover_Pct": round(lcc_val, 1),
-        "Algae_Cover_Pct": round(algae_cov, 1),
+        "Live_Coral_Cover_Pct": round(float(lcc_val), 1),
+        "Algae_Cover_Pct": round(float(algae_cov), 1),
         "Structural_Damage": "High" if damage_px > (total_px * 0.05) else "Low"
     }
 
