@@ -138,7 +138,12 @@ if uploaded_file is not None:
         st.caption("🟢 Green: Healthy | ⚪ White: Bleached | 🔴 Red: Algae | ⚫ Grey: Rubble")
 
     st.subheader("Detailed Report")
-    st.table(report)
+    
+    # --- CRASH FIX: Convert everything to strings first ---
+    # This prevents the "ArrowTypeError" / "numpy.float64" crash 100%
+    safe_report = {k: str(v) for k, v in report.items()}
+    st.table([safe_report])
+    
     
     # --- NEW: DOWNLOAD BUTTON ---
     pdf_bytes = create_pdf(report)
